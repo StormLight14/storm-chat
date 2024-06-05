@@ -8,14 +8,26 @@
   let messagesContainer: HTMLDivElement;
 
   let username = "";
-  let joined_chat = false;
+  let username_submitted = false;
   let message: string;
   let messages: string[][] = [];
 
+  let connected = false;
+  store.connectedSubscribe(currentConnected => {
+    connected = currentConnected;
+    if (connected === false) {
+      connectionFailed();
+    } else {
+      responseMessage = "";
+    }
+  });
+
   function join() {
     if (username.length >= minUsernameLength) {
-      responseMessage = "";
-      joined_chat = true;
+      username_submitted = true;
+      if (connected === true) {
+        responseMessage = "";
+      }
       store.subscribe(currentMessage => {
         messages = [...messages, formatMessage(currentMessage)];
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -23,6 +35,10 @@
     } else {
       responseMessage = "Username must be at least " + minUsernameLength + " characters.";
     }
+  }
+
+  function connectionFailed() {
+    responseMessage = "There was a problem connecting to the server; restarting the application may fix this."
   }
 
   async function sendMessage() {
@@ -55,7 +71,7 @@
   {#if responseMessage}
     <p class="response-message">{responseMessage}</p>
   {/if}
-  {#if joined_chat === false}
+  {#if connected === false || username_submitted === false}
     <p>Username: </p>
     <form on:submit={join}>
       <input type="text" bind:value={username} minlength="{minUsernameLength}" maxlength="16"/>
@@ -63,7 +79,7 @@
     </form>
   {/if}
   
-  {#if joined_chat === true}
+  {#if connected === true && username_submitted === true}
     <div class="messages" bind:this={messagesContainer}>
       {#each messages as message}
         {#if message[0]}
@@ -117,7 +133,7 @@
   }
 
   .message {
-    color: var(--subtext-1);
+    color: var(--subtext-);
   }
 
   form {
