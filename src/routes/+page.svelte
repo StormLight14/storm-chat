@@ -18,6 +18,7 @@
       joined_chat = true;
       store.subscribe(currentMessage => {
         messages = [...messages, currentMessage];
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
     } else {
       responseMessage = "Username must be at least " + minUsernameLength + " characters.";
