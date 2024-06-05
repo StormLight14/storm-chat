@@ -1,9 +1,8 @@
-import { writable } from 'svelte/store';
+import { writable } from 'svelte/store';    
 
 const messageStore = writable('');
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket('wss://chat.stormyyy.dev');
 
-let users: string[] = [];
 let connected = false;
 
 // Connection opened
@@ -18,7 +17,6 @@ socket.addEventListener('message', function (event) {
         messageStore.set(reader.result as string);
     }
     reader.readAsText(event.data);
-    //messageStore.set(event.data);
 });
 
 const sendMessage = (message: string) => {
