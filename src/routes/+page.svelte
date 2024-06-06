@@ -38,7 +38,7 @@
   }
 
   function connectionFailed() {
-    responseMessage = "There was a problem connecting to the server; restarting the application may fix this."
+    responseMessage = "There was a problem connecting to the server. Attempting reconnection..."
   }
 
   async function sendMessage() {
@@ -98,8 +98,7 @@
 </div>
 
 <style>
-  :root,
-  root.dark {
+  :root {
     --surface-1: #45475a;
     --subtext-1: #bac2de;
     --subtext-0: #a6adc8;
