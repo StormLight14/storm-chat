@@ -16,11 +16,15 @@ socket.addEventListener('close', function (event) {
 
 // Listen for messages
 socket.addEventListener('message', function (event) {
-    const reader = new FileReader();
-    reader.onload = function() {
-        messageStore.set(reader.result as string);
+    if (event.data instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            messageStore.set(reader.result as string);
+        };
+        reader.readAsText(event.data);
+    } else {
+        messageStore.set(event.data);
     }
-    reader.readAsText(event.data);
 });
 
 const sendMessage = (message: string) => {
