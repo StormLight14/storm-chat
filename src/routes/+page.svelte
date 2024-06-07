@@ -1,44 +1,51 @@
 <script lang="ts">
   import store from '../lib/store.ts';
+  import '../app.css';
   import { tick } from 'svelte';
 
+  const allowedChars = "abcdefghijklmnopqrstuvwxyz";
   const minUsernameLength = 3;
 
   let responseMessage: string;
   let messagesContainer: HTMLDivElement;
 
-  let username = "";
+  let username: string = "";
   let username_submitted = false;
   let message: string;
   let messages: string[][] = [];
 
   let connected = false;
+  let showConnected = false;
   store.connectedSubscribe(currentConnected => {
     connected = currentConnected;
-    if (connected === false) {
-      connectionFailed();
-    } else {
-      responseMessage = "";
-    }
   });
 
   function join() {
     if (username.length >= minUsernameLength) {
+      for (let i = 0; i < username.length; i++) {
+        if (!allowedChars.includes(username[i].toLowerCase())) {
+          responseMessage = "Username must only contain letters A-Z.";
+          return;
+        }
+      }
+      store.setupWebsocket(username);
       username_submitted = true;
       if (connected === true) {
         responseMessage = "";
+      } else {
+        showConnected = true;
       }
       store.subscribe(currentMessage => {
-        messages = [...messages, formatMessage(currentMessage)];
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (currentMessage.startsWith("[SERVER]")) {
+          responseMessage = currentMessage.split(" ").slice(1).join(" ");
+        } else {
+          messages = [...messages, formatMessage(currentMessage)];
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
       });
     } else {
       responseMessage = "Username must be at least " + minUsernameLength + " characters.";
     }
-  }
-
-  function connectionFailed() {
-    responseMessage = "There was a problem connecting to the server. Attempting reconnection..."
   }
 
   async function sendMessage() {
@@ -46,7 +53,7 @@
       let sent_message = username + ": " + message;
       store.sendMessage(sent_message);
       messages.push(formatMessage(sent_message));
-      messages = messages; // silly svelte thing
+      messages = messages; // silly svelte thing to show the change
       message = "";
       await tick();
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -70,12 +77,14 @@
   <h1>Storm Chat</h1>
   {#if responseMessage}
     <p class="response-message">{responseMessage}</p>
+  {:else if !connected && showConnected}
+    <p class="response-message">Disconnected from server.</p>
   {/if}
   {#if connected === false || username_submitted === false}
     <p>Username: </p>
     <form on:submit={join}>
       <input type="text" bind:value={username} minlength="{minUsernameLength}" maxlength="16"/>
-      <input type="submit" value="Join Chat"/>
+      <button type="submit">Join Chat</button>
     </form>
   {/if}
   
@@ -92,85 +101,7 @@
     </div>
     <form on:submit|preventDefault={sendMessage}>
       <input type="text" class="message-input" bind:value={message}/>
-      <input type="submit" value="Send"/>
+      <button type="submit">Send</button>
     </form>
   {/if}
 </div>
-
-<style>
-  :root {
-    --surface-1: #45475a;
-    --subtext-1: #bac2de;
-    --subtext-0: #a6adc8;
-    --red: #f38ba8;
-    --text: #cdd6f4;
-    --bg-color: #1e1e2e;
-  }
-
-  root.light {
-    --surface-1: #bcc0cc;
-    --subtext-1: #5c5f77;
-    --subtext-0: #6c6f85;
-    --red: #d20f39;
-    --text: #4c4f69;
-    --bg-color: #eff1f5;
-  }
-
-  :root {
-    background-color: var(--bg-color);
-    color: var(--text);
-  }
-
-  .container {
-    margin: 0;
-  }
-
-  .messages {
-    max-height: 80vh;
-    min-width: 100%;
-    overflow-y: scroll;
-  }
-
-  .message {
-    color: var(--subtext-);
-  }
-
-  form {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin: 0;
-  }
-
-  input {
-    border-width: 0;
-    border-radius: 3px;
-    height: 25px;
-    color: var(--text);
-    background-color: var(--surface-1);
-  }
-
-  .message-input {
-    width: 100%;
-  }
-
-  input[type=submit] {
-    text-align: center;
-    margin-left: 5px;
-  }
-
-  p {
-    margin-top: 0;
-  }
-
-  .message-container {
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 100%;
-    display: flex;
-  }
-
-  .response-message {
-    color: #f38ba8;
-  }
-</style>
