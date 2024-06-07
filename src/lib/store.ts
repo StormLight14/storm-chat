@@ -5,8 +5,8 @@ const messageStore = writable('');
 const connectedStore = writable(false);
 const usersStore = writable([]);
 
-const setupWebsocket = async (username: string) => {
-    socket = new WebSocket('ws://localhost:8082');
+const setupWebsocket = async (address: string, username: string) => {
+    socket = new WebSocket(address);
 
     // Connection opened
     socket.addEventListener('open', function (event) {

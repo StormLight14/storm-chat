@@ -15,6 +15,7 @@
   let messages: string[][] = [];
 
   let users: string[];
+  let address: string = "wss://chat.stormyyy.dev";
 
   let connected = false;
   let showConnected = false;
@@ -35,7 +36,7 @@
           responseMessage = "";
         }
       }
-      store.setupWebsocket(username);
+      store.setupWebsocket(address, username);
       username_submitted = true;
       if (connected === true) {
         responseMessage = "";
@@ -90,6 +91,7 @@
   {#if connected === false || username_submitted === false}
     <p>Username: </p>
     <form on:submit={join}>
+      <input type="text" bind:value={address}/>
       <input type="text" bind:value={username} minlength="{minUsernameLength}" maxlength="16"/>
       <button type="submit">Join Chat</button>
     </form>
