@@ -118,8 +118,8 @@
     <div>
       
     </div>
-    <form on:submit|preventDefault={sendMessage}>
-      <input type="text" class="message-input" bind:value={message}/>
+    <form class="message-input" on:submit|preventDefault={sendMessage}>
+      <input type="text" bind:value={message}/>
       <button type="submit">Send</button>
     </form>
   {/if}
