@@ -14,10 +14,15 @@
   let message: string;
   let messages: string[][] = [];
 
+  let users: string[];
+
   let connected = false;
   let showConnected = false;
   store.connectedSubscribe(currentConnected => {
     connected = currentConnected;
+  });
+  store.usersSubscribe(currentUsers => {
+    users = currentUsers;
   });
 
   function join() {
@@ -26,6 +31,8 @@
         if (!allowedChars.includes(username[i].toLowerCase())) {
           responseMessage = "Username must only contain letters A-Z.";
           return;
+        } else {
+          responseMessage = "";
         }
       }
       store.setupWebsocket(username);
@@ -36,7 +43,7 @@
         showConnected = true;
       }
       store.subscribe(currentMessage => {
-        if (currentMessage.startsWith("[SERVER]")) {
+        if (currentMessage.startsWith("[SERVER_RESPONSE]")) {
           responseMessage = currentMessage.split(" ").slice(1).join(" ");
         } else {
           messages = [...messages, formatMessage(currentMessage)];
@@ -98,6 +105,9 @@
           </div>
         {/if}
       {/each}
+    </div>
+    <div>
+      
     </div>
     <form on:submit|preventDefault={sendMessage}>
       <input type="text" class="message-input" bind:value={message}/>
