@@ -1,6 +1,6 @@
 <script lang="ts">
   import store from '../lib/store.ts';
-  import '../app.css';
+  import '../app.scss';
   import { tick } from 'svelte';
 
   const allowedChars = "abcdefghijklmnopqrstuvwxyz";
@@ -10,7 +10,7 @@
   let messagesContainer: HTMLDivElement;
 
   let username: string = "";
-  let username_submitted = false;
+  let usernameSubmitted = false;
   let message: string;
   let messages: string[][] = [];
 
@@ -21,6 +21,9 @@
   let showConnected = false;
   store.connectedSubscribe(currentConnected => {
     connected = currentConnected;
+    if (connected === false) {
+      usernameSubmitted = false;
+    }
   });
   store.usersSubscribe(currentUsers => {
     users = currentUsers;
@@ -37,7 +40,7 @@
         }
       }
       store.setupWebsocket(address, username);
-      username_submitted = true;
+      usernameSubmitted = true;
       if (connected === true) {
         responseMessage = "";
       } else {
@@ -82,14 +85,17 @@
 </script>
 
 <div class="container">
-  <h1>Storm Chat</h1>
+  {#if usernameSubmitted === false}
+    <h1>Storm Chat</h1>
+  {/if}
+  
   {#if responseMessage}
     <p class="response-message">{responseMessage}</p>
   {:else if !connected && showConnected}
     <p class="response-message">Disconnected from server.</p>
   {/if}
-  {#if connected === false || username_submitted === false}
-    <form on:submit={join}>
+  {#if connected === false || usernameSubmitted === false}
+    <form class="login-form" on:submit={join}>
       <p>Server Address: </p>
       <input type="text" bind:value={address}/>
       <p>Username: </p>
@@ -98,7 +104,7 @@
     </form>
   {/if}
   
-  {#if connected === true && username_submitted === true}
+  {#if connected === true && usernameSubmitted === true}
     <div class="messages" bind:this={messagesContainer}>
       {#each messages as message}
         {#if message[0]}
