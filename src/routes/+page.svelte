@@ -89,9 +89,10 @@
     <p class="response-message">Disconnected from server.</p>
   {/if}
   {#if connected === false || username_submitted === false}
-    <p>Username: </p>
     <form on:submit={join}>
+      <p>Server Address: </p>
       <input type="text" bind:value={address}/>
+      <p>Username: </p>
       <input type="text" bind:value={username} minlength="{minUsernameLength}" maxlength="16"/>
       <button type="submit">Join Chat</button>
     </form>
