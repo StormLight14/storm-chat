@@ -92,7 +92,7 @@
   {#if responseMessage}
     <p class="response-message">{responseMessage}</p>
   {:else if !connected && showConnected}
-    <p class="response-message">Disconnected from server.</p>
+    <p class="response-message">Can't connect to the server.</p>
   {/if}
   {#if connected === false || usernameSubmitted === false}
     <form class="login-form" on:submit={join}>
