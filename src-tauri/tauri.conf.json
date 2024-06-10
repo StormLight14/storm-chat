@@ -1,6 +1,6 @@
 {
   "productName": "storm-chat",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "identifier": "dev.stormyyy.dev",
   "build": {
     "beforeDevCommand": "bun run dev",
